@@ -1,0 +1,288 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Modelo de Usuarios y Autenticación
+model User {
+  id          String      @id @default(uuid())
+  auth0Id     String?     @unique
+  email       String      @unique
+  password    String?     // Solo para usuarios no Auth0
+  name        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  employee    Employee?
+  roles       UserRole[]
+  reports     Report[]    @relation("UserReports")
+  movements   Movement[]  @relation("UserMovements")
+}
+
+// Modelo de Roles y Permisos
+model Role {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+  permissions Json        // Array de permisos en formato JSON
+  users       UserRole[]
+  createdAt   DateTime    @default(now())
+}
+
+model UserRole {
+  userId      String
+  roleId      String
+  assignedAt  DateTime    @default(now())
+  assignedBy  String?     // ID del admin que asignó el rol
+  user        User        @relation(fields: [userId], references: [id])
+  role        Role        @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+}
+
+// Modelo de Sucursales
+model Branch {
+  id          String      @id @default(uuid())
+  name        String @unique
+  address     String
+  phone       String
+  email       String?
+  schedule    Json        // Horario en formato JSON
+  isActive    Boolean     @default(true)
+  employees   Employee[]  @relation("BranchEmployees")
+  inventory   Inventory[] @relation("BranchInventory")
+  menuItems   MenuItem[]  @relation("BranchMenuItems")
+  reports     Report[]    @relation("BranchReports")
+  orders      Order[]     @relation("BranchOrders")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Modelo de Empleados
+model Employee {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id])
+  branch      Branch      @relation("BranchEmployees", fields: [branchId], references: [id])
+  branchId    String
+  position    String
+  salary      Float
+  hiredDate   DateTime
+  isActive    Boolean     @default(true)
+  attendances Attendance[]
+  schedules   Schedule[]
+  movements   Movement[]  @relation("EmployeeMovements")
+  reports     Report[]    @relation("EmployeeReports")
+  orders      Order[]     @relation("EmployeeOrders")
+  payments    Payment[]   @relation("EmployeePayments")
+}
+
+// Control de Asistencias
+model Attendance {
+  id          String      @id @default(uuid())
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+  employeeId  String
+  date        DateTime
+  checkIn     DateTime
+  checkOut    DateTime?
+  notes       String?
+}
+
+// Horarios de Trabajo
+model Schedule {
+  id          String      @id @default(uuid())
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+  employeeId  String
+  dayOfWeek   Int         // 0-6 (Domingo-Sábado)
+  startTime   String      // Formato "HH:MM"
+  endTime     String      // Formato "HH:MM"
+  isRecurring Boolean     @default(true)
+  validFrom   DateTime
+  validUntil  DateTime?
+}
+
+// Modelo de Inventario
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  barcode     String?     @unique
+  unit        String      // "kg", "l", "unidades"
+  cost        Float
+  category    String
+  inventory   Inventory[] @relation("ProductInventory")
+  recipes     Recipe[]    @relation("ProductRecipes")
+  movements   Movement[]  @relation("ProductMovements")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Inventory {
+  id          String      @id @default(uuid())
+  branch      Branch      @relation("BranchInventory", fields: [branchId], references: [id])
+  branchId    String
+  product     Product     @relation("ProductInventory", fields: [productId], references: [id])
+  productId   String
+  quantity    Float
+  minStock    Float
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([branchId, productId])
+}
+
+// Movimientos de Inventario
+model Movement {
+  id          String      @id @default(uuid())
+  type        MovementType
+  product     Product     @relation("ProductMovements", fields: [productId], references: [id])
+  productId   String
+  quantity    Float
+  date        DateTime    @default(now())
+  employee    Employee?   @relation("EmployeeMovements", fields: [employeeId], references: [id])
+  employeeId  String?
+  user        User?       @relation("UserMovements", fields: [userId], references: [id])
+  userId      String?
+  notes       String?
+  reference   String?     // N° de factura/remito
+}
+
+enum MovementType {
+  INGRESS     // Entrada
+  EGRESS      // Salida
+  ADJUSTMENT  // Ajuste
+  LOSS        // Pérdida
+}
+
+// Modelo de Menú
+model MenuItem {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  category    String
+  branch      Branch      @relation("BranchMenuItems", fields: [branchId], references: [id])
+  branchId    String
+  isActive    Boolean     @default(true)
+  imageUrl    String?
+  recipes     Recipe[]    @relation("MenuItemRecipes")
+  orderItems  OrderItem[] @relation("MenuItemOrders")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Recetas (Relación Plato-Ingredientes)
+model Recipe {
+  id          String      @id @default(uuid())
+  menuItem    MenuItem    @relation("MenuItemRecipes", fields: [menuItemId], references: [id])
+  menuItemId  String
+  product     Product     @relation("ProductRecipes", fields: [productId], references: [id])
+  productId   String
+  quantity    Float
+  notes       String?
+  createdAt   DateTime    @default(now())
+
+  @@unique([menuItemId, productId])
+}
+
+// Modelo de Órdenes y Pagos
+model Order {
+  id          String      @id @default(uuid())
+  code        String      @unique
+  branch      Branch      @relation("BranchOrders", fields: [branchId], references: [id])
+  branchId    String
+  tableNumber Int?
+  status      OrderStatus @default(PENDING)
+  items       OrderItem[] @relation("OrderItems")
+  payments    Payment[]   @relation("OrderPayments")
+  total       Float
+  employee    Employee?   @relation("EmployeeOrders", fields: [employeeId], references: [id])
+  employeeId  String?
+  customer    String?     // Nombre del cliente (para mostrador)
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String      @id @default(uuid())
+  order       Order       @relation("OrderItems", fields: [orderId], references: [id])
+  orderId     String
+  menuItem    MenuItem    @relation("MenuItemOrders", fields: [menuItemId], references: [id])
+  menuItemId  String
+  quantity    Int         @default(1)
+  unitPrice   Float
+  notes       String?
+  status      ItemStatus  @default(PENDING)
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DELIVERED
+}
+
+enum ItemStatus {
+  PENDING
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+model Payment {
+  id          String      @id @default(uuid())
+  order       Order       @relation("OrderPayments", fields: [orderId], references: [id])
+  orderId     String
+  amount      Float
+  method      PaymentMethod
+  status      PaymentStatus @default(COMPLETED)
+  employee    Employee?   @relation("EmployeePayments", fields: [employeeId], references: [id])
+  employeeId  String?
+  notes       String?
+  createdAt   DateTime    @default(now())
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  TRANSFER
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// Sistema de Reportes
+model Report {
+  id          String      @id @default(uuid())
+  type        ReportType
+  title       String
+  description String?
+  dateRange   Json        // { from: Date, to: Date }
+  data        Json        // Datos del reporte en formato JSON
+  branch      Branch?     @relation("BranchReports", fields: [branchId], references: [id])
+  branchId    String?
+  generatedBy User        @relation("UserReports", fields: [userId], references: [id])
+  userId      String
+  employee    Employee?   @relation("EmployeeReports", fields: [employeeId], references: [id])
+  employeeId  String?
+  createdAt   DateTime    @default(now())
+}
+
+enum ReportType {
+  SALES
+  INVENTORY
+  EMPLOYEE
+  FINANCIAL
+  CUSTOM
+}
