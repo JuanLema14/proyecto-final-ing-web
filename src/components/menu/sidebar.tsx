@@ -49,18 +49,18 @@ export default function Sidebar({ user }: SidebarProps) {
       icon: <FileText className="w-5 h-5" />, 
       roles: ['SUPER_ADMIN', 'GERENTE_SUCURSAL'] 
     },
-    { 
+    /* { 
       name: 'Menú', 
       href: '/main/menu', 
       icon: <Utensils className="w-5 h-5" />, 
       roles: ['SUPER_ADMIN', 'GERENTE_SUCURSAL'] 
-    },
-    { 
+    }, */
+    /* { 
       name: 'Órdenes', 
       href: '/main/orders', 
       icon: <ShoppingCart className="w-5 h-5" />, 
       roles: ['SUPER_ADMIN', 'GERENTE_SUCURSAL', 'MESERO'] 
-    },
+    }, */
     { 
       name: 'Inventario', 
       href: '/main/inventory', 
@@ -73,7 +73,7 @@ export default function Sidebar({ user }: SidebarProps) {
       icon: <Users className="w-5 h-5" />, 
       roles: ['SUPER_ADMIN'] 
     },
-    { 
+   /*  { 
       name: 'Turnos', 
       href: '/main/schedules', 
       icon: <Clock className="w-5 h-5" />, 
@@ -90,7 +90,7 @@ export default function Sidebar({ user }: SidebarProps) {
       href: '/main/settings', 
       icon: <Settings className="w-5 h-5" />, 
       roles: ['SUPER_ADMIN'] 
-    },
+    }, */
   ]
 
   const filteredNavItems = navItems.filter(item => item.roles.includes(userRole))

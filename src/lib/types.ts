@@ -82,5 +82,50 @@ export type NewEmployeeInput = {
   isActive: boolean
 }
 
+export type Inventory = {
+  id: string;
+  productId: string;
+  branchId: string;
+  quantity: number;
+  minStock: number;
+  updatedAt: Date;
+  product: {
+    id: string;
+    name: string;
+    unit: string;
+  };
+};
+
+export type Movement = {
+  id: string;
+  type: "entrada" | "salida";
+  productId: string;
+  quantity: number;
+  date: Date;
+  employeeId?: string;
+  userId?: string;
+  notes?: string;
+  reference?: string;
+  product: {
+    id: string;
+    name: string;
+    unit: string;
+  };
+};
+
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  barcode: string;
+  unit: string;
+  cost: number;
+  category: string;
+  recipes: string[];
+  movements: Movement[];
+  inventory: Inventory[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type BranchFormData = z.infer<typeof branchFormSchema>;
