@@ -1,4 +1,3 @@
-import { Icon } from '@tabler/icons-react';
 
 export const Icons = {
   logo: () => (

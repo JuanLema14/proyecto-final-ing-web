@@ -1,6 +1,5 @@
 import { prisma } from "@/app/lib/db";
 import { auth } from "@/app/lib/auth";
-import { getAuthenticatedUser } from "@/app/lib/util";
 
 export async function getProducts() {
   const session = await auth();
