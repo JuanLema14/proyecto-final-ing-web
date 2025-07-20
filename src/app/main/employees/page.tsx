@@ -7,9 +7,12 @@ import { auth } from "@/app/lib/auth";
 import { redirect } from "next/navigation";
 
 import { ErrorMessage } from "@/components/error-message";
+import { console } from "inspector";
 
 export default async function EmployeesPage() {
+  console.log("Cargando empleados...");
   const session = await auth();
+
   if (!session?.user) {
     console.error("Usuario no autenticado, redirigiendo a login");
     return redirect("/login");
@@ -21,9 +24,9 @@ export default async function EmployeesPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Gestión de Empleados</h1>
+          <h1 className="text-2xl font-bold text-primary">Gestión de Empleados</h1>
           <Button asChild>
-            <Link href="/employees/new">
+            <Link href="/main/employees/new">
               <Plus className="mr-2 h-4 w-4" />
               Nuevo Empleado
             </Link>
@@ -34,16 +37,16 @@ export default async function EmployeesPage() {
       </div>
     );
   } catch (error: any) {
+    console.error("Error al cargar empleados:", error);
+
     if (error.message === "Unauthorized") {
-      return redirect(
-        "/main?error=unauthorized"
-      );
+      return redirect("/main?error=unauthorized");
     }
 
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Gestión de Empleados</h1>
+          <h1 className="text-2xl font-bold text-primary">Gestión de Empleados</h1>
         </div>
 
         <ErrorMessage
