@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍽️ Restaurante App - Sistema de Gestión Integral
 
-## Getting Started
+## 🌟 Descripción
 
-First, run the development server:
+Un sistema completo para la gestión de restaurantes que incluye:
+- Control de inventario 📦
+- Gestión de Sucursales 🧾
+- Administración de empleados 👨‍🍳
+
+## 🚀 Cómo Empezar
+
+### Prueba la App en Vercel
+🔗 **Acceso en vivo:** [https://proyecto-final-ing-web-pearl.vercel.app](https://proyecto-final-ing-web-pearl.vercel.app)
+
+👤 **Usuario de prueba:**  
+📧 Email: `admin@restaurante.com`  
+🔑 Contraseña: `123456`
+
+### Instalación Local
 
 ```bash
+# Clona el repositorio
+git clone https://github.com/tu-usuario/proyecto-final-ing-web.git
+
+# Entra al directorio
+cd proyecto-final-ing-web
+
+# Instala dependencias
+npm install
+
+# Configura variables de entorno
+.env
+
+# Inicia el servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tecnologías Utilizadas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Categoría       | Tecnologías                                                                |
+|-----------------|----------------------------------------------------------------------------|
+| Frontend        | Next.js 13, React 18, TypeScript, Tailwind CSS, Shadcn/ui                  |
+| Backend         | Next.js API Routes, Prisma ORM                                             |
+| Autenticación   | NextAuth.js                                                                |
+| Base de Datos   | PostgreSQL (Vercel Postgres)                                               |
+| Deployment      | Vercel                                                                     |
+| Herramientas    | ESLint, Prettier                                                           |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📦 Estructura del Proyecto
 
-## Learn More
+```
+proyecto-final-ing-web/src
+├── app/
+│   ├── api/                  # Endpoints API
+│   ├── auth/                 # Configuración de autenticación
+│   ├── main/                 # Rutas principales de la aplicación
+│   └── lib/                  # Funciones compartidas
+├── components/               # Componentes reutilizables
+├── prisma/                   # Esquema y migraciones de la base de datos
+└── public/                   # Assets estáticos
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🔍 Características Principales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1. Gestión de Inventario
+- 📊 Visualización de stock en tiempo real
+- 📝 Registro de movimientos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Administración de Órdenes
+- 🖥️ Interfaz intuitiva para meseros
 
-## Deploy on Vercel
+### 3. Panel de Administración
+- 👥 Gestión de empleados
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧑‍💻 Desarrollo
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Configuración Inicial
+
+1. **Base de Datos**:
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma db seed
+   ```
+
+2. **Variables de Entorno**:
+   ```env
+   DATABASE_URL="postgresql://..."
+   NEXTAUTH_SECRET="tu-secreto-seguro"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+### Scripts Útiles
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prisma:studio": "npx prisma studio"
+  }
+}
+```
+
+## 🐛 Solución de Problemas
+
+**Problema:** Error de conexión a la base de datos  
+✅ **Solución:** Verifica que `DATABASE_URL` esté correctamente configurada en `.env`
+
+**Problema:** Problemas de autenticación  
+✅ **Solución:** Asegúrate que `NEXTAUTH_SECRET` esté definida y sea segura
+
+
+## 📄 Licencia
+
+© 2025 JuanLema14
+
+---
+
+✨ **¡Gracias por probar nuestra aplicación!** ✨  
+¿Preguntas o sugerencias? ¡Abre un issue en GitHub!
