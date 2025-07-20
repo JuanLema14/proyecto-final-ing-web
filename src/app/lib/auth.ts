@@ -1,11 +1,13 @@
+// lib/auth.ts
 import {
   type DefaultSession,
   getServerSession,
   type NextAuthOptions,
 } from "next-auth";
-import Auth0Provider from "next-auth/providers/auth0";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
+import bcrypt from "bcryptjs";
 
 declare module "next-auth" {
   interface Session {
@@ -14,50 +16,64 @@ declare module "next-auth" {
       role: string;
     } & DefaultSession["user"];
   }
+
+  interface User {
+    id: string;
+    role: string;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "jwt",
-  },
   providers: [
-    Auth0Provider({
-      clientId: process.env.AUTH0_CLIENT_ID!,
-      clientSecret: process.env.AUTH0_CLIENT_SECRET!,
-      issuer: process.env.AUTH0_ISSUER_BASE_URL,
-      authorization: {
-        params: { scope: "openid profile email" },
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
-      client: {
-        token_endpoint_auth_method: "client_secret_post",
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      // Initial sign in
-      if (user) {
-        token.id = user.id;
-        
-        // Fetch user roles
-        const userWithRoles = await prisma.user.findUnique({
-          where: { id: user.id },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
           include: {
             roles: {
               include: { role: true },
             },
           },
         });
-        
-        token.role = userWithRoles?.roles?.[0]?.role?.name ?? "user";
+
+        if (!user || !user.password) return null;
+
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+        if (!isValid) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.roles?.[0]?.role?.name ?? "user",
+        };
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
-      console.log("\n\n-----> RECEIVED SESSION CALLBACK <-----\n", { session, token });
-      
-      if (session.user) {
+      if (session.user && token) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
       }
