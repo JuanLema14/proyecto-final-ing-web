@@ -2,6 +2,7 @@ import { auth } from "@/app/lib/auth";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/menu/sidebar";
 import { cn } from "@/lib/utils";
+import { ClientWrapper } from "@/components/client-wrapper";
 
 export default async function MainLayout({
   children,
@@ -16,6 +17,7 @@ export default async function MainLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ClientWrapper />
       <div className="flex h-full">
         {/* Sidebar - now properly typed with user role */}
         <Sidebar user={{

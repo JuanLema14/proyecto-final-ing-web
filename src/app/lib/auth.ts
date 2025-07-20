@@ -19,7 +19,7 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt", // Explicitly set to JWT
+    strategy: "jwt",
   },
   providers: [
     Auth0Provider({

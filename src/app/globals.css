@@ -1,8 +1,34 @@
 @import "tailwindcss";
 
 :root {
+  /* Colores base */
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Paleta primaria (tonos cálidos para restaurante) */
+  --primary: #3225e7;       /* Rojo vibrante */
+  --primary-foreground: #f8f9fa;
+  --primary-dark: #4134dc;
+  
+  /* Paleta secundaria */
+  --secondary: #4d3df7;     /* Azul complementario */
+  --secondary-foreground: #f8f9fa;
+  
+  /* Colores acentos */
+  --accent: #f4a261;        /* Naranja terroso */
+  --accent-foreground: #171717;
+  
+  /* Colores de éxito/error */
+  --success: #2a9d8f;       /* Verde azulado */
+  --error: #e63946;         /* Rojo (igual que primary para consistencia) */
+  
+  /* Grises */
+  --muted: #f8f9fa;
+  --muted-foreground: #6c757d;
+  --border: #dee2e6;
+  
+  /* Sombras */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 @theme inline {
@@ -15,12 +41,93 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #f8f9fa;
+    
+    --primary: #330be7;
+    --primary-foreground: #f8f9fa;
+    
+    --secondary: #4cc9f0;
+    --secondary-foreground: #0a0a0a;
+    
+    --accent: #f8961e;
+    --accent-foreground: #0a0a0a;
+    
+    --success: #52b788;
+    --error: #ef233c;
+    
+    --muted: #212529;
+    --muted-foreground: #adb5bd;
+    --border: #343a40;
+    
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
   }
 }
 
+@theme {
+  /* Configuración base */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  /* Colores temáticos */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-success: var(--success);
+  --color-error: var(--error);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  
+  --color-shadow: var(--shadow);
+  
+  /* Tipografía */
+  --font-sans: "Geist Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}
+
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.branch-card {
+  animation: fadeIn 0.3s ease-out forwards;
+  animation-delay: calc(var(--order) * 0.05s);
+}
+
+/* Componentes personalizados */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.card {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }

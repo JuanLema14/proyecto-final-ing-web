@@ -44,6 +44,12 @@ export default function Sidebar({ user }: SidebarProps) {
       roles: ['SUPER_ADMIN', 'GERENTE_SUCURSAL', 'MESERO'] 
     },
     { 
+      name: 'Sucursales', 
+      href: '/main/branches', 
+      icon: <FileText className="w-5 h-5" />, 
+      roles: ['SUPER_ADMIN', 'GERENTE_SUCURSAL'] 
+    },
+    { 
       name: 'Menú', 
       href: '/main/menu', 
       icon: <Utensils className="w-5 h-5" />, 

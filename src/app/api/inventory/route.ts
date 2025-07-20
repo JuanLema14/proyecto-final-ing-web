@@ -1,32 +1,36 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/db';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/app/lib/db'
+import { auth } from '@/app/lib/auth'
 
 export async function GET() {
-  const data = await prisma.inventory.findMany({
-    include: {
-      branch: true,
-      product: true
-    },
-  });
-  return NextResponse.json(data);
-}
-
-export async function POST(req: Request) {
-  const body = await req.json();
+  const session = await auth()
+  
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
-    const inventory = await prisma.inventory.create({
-      data: {
-        branchId: body.branchId,
-        productId: body.productId,
-        quantity: body.quantity,
-        minStock: body.minStock
+    const inventory = await prisma.inventory.findMany({
+      include: {
+        product: true,
+        branch: true
       },
-    });
-
-    return NextResponse.json(inventory, { status: 201 });
+      where: {
+        branch: {
+          employees: {
+            some: {
+              userId: session.user.id
+            }
+          }
+        }
+      }
+    })
+    
+    return NextResponse.json(inventory)
   } catch (error) {
-    console.error('Error creando inventario:', error);
-    return NextResponse.json({ error: 'Error al crear inventario' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch inventory' },
+      { status: 500 }
+    )
   }
 }
