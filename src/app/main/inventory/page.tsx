@@ -8,16 +8,12 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { ErrorMessage } from "@/components/error-message";
 
-export default async function InventoryPage({
-  searchParams,
-}: {
-  searchParams: { branch?: string };
-}) {
+export default async function InventoryPage(props: any) {
   const session = await auth();
   if (!session?.user) return redirect("/login");
 
   try {
-    const inventory = await getInventory(searchParams.branch);
+    const inventory = await getInventory(props.searchParams?.branch);
 
     return (
       <div className="space-y-6">

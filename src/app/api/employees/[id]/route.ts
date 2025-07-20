@@ -1,92 +1,92 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/app/lib/db'
 import { auth } from '@/app/lib/auth'
+import type { NextRequest } from 'next/server'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+async function checkAuth() {
   const session = await auth()
-  
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  return session
+}
+
+export async function GET(
+  _request: NextRequest,
+  context: any
+): Promise<NextResponse> {
+  const session = await checkAuth()
+  if (!session || !context.params.id) return session as any
 
   try {
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       include: {
         user: true,
         branch: true,
         attendances: true,
-        schedules: true
-      }
+        schedules: true,
+      },
     })
-    
+
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Empleado no encontrado' }, { status: 404 })
     }
-    
+
     return NextResponse.json(employee)
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch employee' },
+      { error: 'Error al obtener el empleado' },
       { status: 500 }
     )
   }
 }
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth()
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const data = await request.json()
+  request: NextRequest,
+  context: any
+): Promise<NextResponse> {
+  const session = await checkAuth()
+  if (!session || !context.params.id) return session as any
 
   try {
+    const data = await request.json()
+
     const employee = await prisma.employee.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data,
       include: {
         user: true,
-        branch: true
-      }
+        branch: true,
+      },
     })
-    
+
     return NextResponse.json(employee)
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update employee' },
+      { error: 'Error al actualizar el empleado' },
       { status: 500 }
     )
   }
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth()
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  _request: NextRequest,
+  context: any
+): Promise<NextResponse> {
+  const session = await checkAuth()
+  if (!session || !context.params.id) return session as any
 
   try {
     await prisma.employee.update({
-      where: { id: params.id },
-      data: { isActive: false }
+      where: { id: context.params.id },
+      data: { isActive: false },
     })
-    
-    return NextResponse.json({ success: true })
+
+    return NextResponse.json({ message: 'Empleado desactivado' })
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to deactivate employee' },
+      { error: 'Error al desactivar el empleado' },
       { status: 500 }
     )
   }

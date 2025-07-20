@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function InventoryDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+  params
+}: any) {
   const item = await getInventoryItem(params.id);
   if (!item) return notFound();
 

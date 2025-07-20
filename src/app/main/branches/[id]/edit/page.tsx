@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Branch } from "@/lib/types";
 import { createBranch, getBranchById, updateBranch } from "@/lib/api/branches";
@@ -48,6 +48,7 @@ const daysOfWeek = [
 
 export default function EditBranchPage() {
   const params = useParams();
+  console.log("Params:", params.id, typeof params.id);
   const id = typeof params?.id === "string" ? params.id : "new";
 
   const router = useRouter();
@@ -88,10 +89,7 @@ export default function EditBranchPage() {
           isActive: data.isActive,
         });
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "No se pudo cargar la sucursal",
-        });
+        toast.error("No se pudo cargar la sucursal" + error);
         router.push("/main/branches");
       }
     };
@@ -109,24 +107,15 @@ export default function EditBranchPage() {
       if (id === "new") {
         // Usamos id en lugar de params.id
         await createBranch(values);
-        toast({
-          title: "Éxito",
-          description: "Sucursal creada correctamente",
-        });
+        toast.info("Sucursal creada correctamente");
       } else {
         await updateBranch(id, values); // Usamos id en lugar de params.id
-        toast({
-          title: "Éxito",
-          description: "Sucursal actualizada correctamente",
-        });
+        toast.info("Sucursal actualizada correctamente"); 
       }
       router.push("/main/branches");
     } catch (error) {
       console.error("Error al procesar el formulario:", error);
-      toast({
-        title: "Error",
-        description: "Hubo un problema al guardar la sucursal",
-      });
+      toast.error("Hubo un problema al guardar la sucursal");
     } finally {
       setIsLoading(false);
     }

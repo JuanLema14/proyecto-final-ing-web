@@ -49,7 +49,13 @@ const fetchBranches = async () => {
 };
 
 const fetchCurrentUser = async (userId: string) => {
-  const res = await fetch(`/api/users/${userId}`);
+  const res = await fetch(`/api/users/`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: { id: userId },
+  });
   if (!res.ok) throw new Error('Error al obtener usuario');
   return res.json();
 };

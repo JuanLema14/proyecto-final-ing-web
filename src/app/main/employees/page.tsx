@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { EmployeesTable } from "@/components/data-table/employees-table"
 import { getEmployees, getEmployee } from "@/lib/api/employees"
 import { auth } from "@/app/lib/auth"
@@ -5,13 +6,15 @@ import { redirect } from "next/navigation"
 import { ErrorMessage } from "@/components/error-message"
 import { getBranches } from "@/lib/api/branches"
 import { prisma } from "@/app/lib/db"
-import { EmployeeFormTrigger } from "@/components/forms/employee-form-trigger";
+import { EmployeeFormTrigger } from "@/components/forms/employee-form-trigger"
 
-export default async function EmployeesPage({
-  searchParams,
-}: {
-  searchParams: { edit?: string }
-}) {
+type Props = {
+  searchParams?: {
+    edit?: string
+  }
+}
+
+export default async function EmployeesPage({ searchParams }: Props) {
   const session = await auth()
 
   if (!session?.user) {
@@ -35,7 +38,7 @@ export default async function EmployeesPage({
     }
 
     // Obtener empleado a editar si hay ID en searchParams
-    const employeeToEdit = searchParams.edit
+    const employeeToEdit = searchParams?.edit
       ? await getEmployee(searchParams.edit)
       : undefined
 
